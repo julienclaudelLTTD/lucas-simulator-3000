@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucas Simulator 3000™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bulb-strip top"></div>
+
+<button id="soundToggle" class="sound-toggle" type="button" aria-label="Mute sound" aria-pressed="false">🔊</button>
+
+<header class="marquee">
+  <div class="marquee-inner">
+    <h1 class="title">
+      <span class="title-line1">The</span>
+      <span class="title-line2">LUCAS SIMULATOR</span>
+      <span class="title-line3">3000<sup>™</sup></span>
+    </h1>
+    <p class="subtitle">✨ Where Destiny Decides Dinner ✨</p>
+  </div>
+</header>
+
+<main class="stage">
+
+  <section class="wheel-zone" aria-label="Prize wheel">
+    <div class="wheel-wrap">
+      <div class="pointer" aria-hidden="true">▼</div>
+      <canvas id="wheelCanvas" width="560" height="560"></canvas>
+      <div class="hub">
+        <span>SPIN</span>
+      </div>
+    </div>
+
+    <button id="spinBtn" class="spin-button">
+      <span class="spin-button-shine"></span>
+      🎰 SPIN THE WHEEL OF DESTINY 🎰
+    </button>
+
+    <p class="hint" id="wheelHint">Add some restaurants on the right, then give fate a whirl!</p>
+  </section>
+
+  <aside class="control-panel" aria-label="Restaurant configuration">
+    <div class="panel-header">
+      <h2>🍽️ Tonight's Contestants</h2>
+      <p>Add every restaurant in the running. The wheel loves options.</p>
+    </div>
+
+    <form id="addForm" class="add-form" autocomplete="off">
+      <input
+        id="restaurantInput"
+        type="text"
+        maxlength="40"
+        placeholder="e.g. Pierre's Palace of Pasta"
+        aria-label="New restaurant name"
+      />
+      <button type="submit" class="add-button" aria-label="Add restaurant">＋ Add</button>
+    </form>
+
+    <ul id="restaurantList" class="restaurant-list"></ul>
+
+    <p id="emptyMsg" class="empty-msg">No contestants yet — the wheel is lonely. 🥲</p>
+
+    <div class="panel-footer">
+      <button id="resetBtn" class="ghost-button" type="button">Reset to starter list</button>
+      <button id="clearBtn" class="ghost-button danger" type="button">Clear all</button>
+    </div>
+  </aside>
+
+</main>
+
+<canvas id="confettiCanvas"></canvas>
+
+<div id="resultOverlay" class="result-overlay" hidden>
+  <div class="result-card">
+    <p class="result-eyebrow">🎉 THE WHEEL HAS SPOKEN 🎉</p>
+    <p class="result-name" id="resultName">???</p>
+    <p class="result-tagline">Bon appétit, champ. Destiny does not accept returns.</p>
+    <button id="closeResult" class="close-button">Nice!</button>
+  </div>
+</div>
+
+<div class="bulb-strip bottom"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
