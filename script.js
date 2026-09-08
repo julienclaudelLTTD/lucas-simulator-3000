@@ -560,7 +560,7 @@
       triggerNukes();
       // let the explosion play out on-screen for a beat before the result
       // card (with its dimming backdrop) covers the show
-      window.setTimeout(() => showResult(restaurants[winningIndex]), 550);
+      window.setTimeout(() => showResult(restaurants[winningIndex]), 950);
     }, SPIN_DURATION_MS + 100);
   }
 
@@ -587,7 +587,7 @@
 
   /* ---------------- Confetti + nuclear explosion effects ---------------- */
 
-  const CONFETTI_COLORS = ['#ffd447', '#ff4d97', '#14c9b7', '#7b3fe4', '#ff8a3d', '#3dd4ff'];
+  const CONFETTI_COLORS = ['#ffd447', '#ff4d97', '#14c9b7', '#7b3fe4', '#ff8a3d', '#3dd4ff', '#ff3d3d', '#7cff5e', '#ff9ee8', '#ffffff'];
 
   let confettiParticles = [];
   let explosionParticles = [];
@@ -603,24 +603,33 @@
   resizeConfettiCanvas();
 
   function launchConfetti() {
-    const count = 160;
+    spawnConfettiBurst(confettiCanvas.width / 2, confettiCanvas.height * 0.35, 420, 200);
+    // two side cannons for extra coverage, staggered right after the main burst
+    window.setTimeout(() => spawnConfettiBurst(confettiCanvas.width * 0.08, confettiCanvas.height * 0.55, 180, 60, 1), 120);
+    window.setTimeout(() => spawnConfettiBurst(confettiCanvas.width * 0.92, confettiCanvas.height * 0.55, 180, 60, -1), 120);
+    // a delayed second wave from the top so the shower keeps going
+    window.setTimeout(() => spawnConfettiBurst(confettiCanvas.width / 2, confettiCanvas.height * 0.1, 260, confettiCanvas.width * 0.6), 500);
+    startEffectsLoop();
+  }
+
+  function spawnConfettiBurst(originX, originY, count, spreadX, xBias) {
+    const bias = xBias || 0;
     for (let i = 0; i < count; i++) {
       confettiParticles.push({
-        x: confettiCanvas.width / 2 + (Math.random() - 0.5) * 200,
-        y: confettiCanvas.height * 0.35,
-        vx: (Math.random() - 0.5) * 9,
-        vy: Math.random() * -9 - 4,
-        size: 6 + Math.random() * 6,
+        x: originX + (Math.random() - 0.5) * spreadX,
+        y: originY,
+        vx: bias * (4 + Math.random() * 8) + (Math.random() - 0.5) * 9,
+        vy: Math.random() * -11 - 4,
+        size: 6 + Math.random() * 7,
         color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
         rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 12,
+        rotationSpeed: (Math.random() - 0.5) * 14,
         shape: Math.random() > 0.5 ? 'rect' : 'circle',
-        gravity: 0.28 + Math.random() * 0.12,
+        gravity: 0.26 + Math.random() * 0.14,
         life: 0,
-        maxLife: 130 + Math.random() * 40
+        maxLife: 140 + Math.random() * 50
       });
     }
-    startEffectsLoop();
   }
 
   /* ----- nuclear explosion: two blasts, shockwaves, mushroom-cloud smoke, screen flash + shake ----- */
@@ -628,21 +637,24 @@
   function triggerNukes() {
     const w = confettiCanvas.width;
     const h = confettiCanvas.height;
-    const y = h * 0.42;
-    const leftX = w * 0.22;
-    const rightX = w * 0.78;
 
-    triggerScreenFlash();
-    spawnExplosionAt(leftX, y, 1);
-    playExplosion(-0.7, 0);
-    shake(18, 900);
+    const blasts = [
+      { x: w * 0.22, y: h * 0.42, scale: 1.1, pan: -0.8, delay: 0, shakeMag: 20, shakeDur: 900 },
+      { x: w * 0.78, y: h * 0.42, scale: 0.95, pan: 0.8, delay: 200, shakeMag: 16, shakeDur: 750 },
+      { x: w * 0.5, y: h * 0.28, scale: 0.75, pan: 0, delay: 380, shakeMag: 12, shakeDur: 600 },
+      { x: w * 0.35, y: h * 0.62, scale: 0.65, pan: -0.4, delay: 520, shakeMag: 10, shakeDur: 550 },
+      { x: w * 0.65, y: h * 0.6, scale: 0.65, pan: 0.4, delay: 640, shakeMag: 10, shakeDur: 550 },
+      { x: w * 0.5, y: h * 0.42, scale: 1.4, pan: 0, delay: 820, shakeMag: 26, shakeDur: 1100 }
+    ];
 
-    window.setTimeout(() => {
-      triggerScreenFlash(0.6);
-      spawnExplosionAt(rightX, y, 0.85);
-      playExplosion(0.7, 0);
-      shake(14, 700);
-    }, 220);
+    blasts.forEach((b) => {
+      window.setTimeout(() => {
+        triggerScreenFlash(Math.min(1, b.scale));
+        spawnExplosionAt(b.x, b.y, b.scale);
+        playExplosion(b.pan, 0);
+        shake(b.shakeMag, b.shakeDur);
+      }, b.delay);
+    });
 
     startEffectsLoop();
   }
@@ -659,24 +671,41 @@
     shockwaves.push({ x, y, start: now + 90, duration: 950, maxRadius: 280 * scale, width: 8 });
 
     // bright fireball core particles
-    for (let i = 0; i < 26; i++) {
+    for (let i = 0; i < 42; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 7;
+      const speed = 2 + Math.random() * 9;
       explosionParticles.push({
         kind: 'fire',
         x,
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: (18 + Math.random() * 26) * scale,
+        size: (18 + Math.random() * 30) * scale,
         life: 0,
-        maxLife: 26 + Math.random() * 14,
+        maxLife: 26 + Math.random() * 16,
         hue: 40 + Math.random() * 20
       });
     }
 
+    // a handful of sparks that shoot further and linger, like fireworks
+    for (let i = 0; i < 18; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 6 + Math.random() * 10;
+      explosionParticles.push({
+        kind: 'fire',
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: (6 + Math.random() * 8) * scale,
+        life: 0,
+        maxLife: 40 + Math.random() * 20,
+        hue: 20 + Math.random() * 40
+      });
+    }
+
     // rising mushroom-cloud smoke: a stem plus a billowing cap
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 100; i++) {
       const capBias = Math.random();
       explosionParticles.push({
         kind: 'smoke',
